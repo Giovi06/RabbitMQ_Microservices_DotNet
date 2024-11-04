@@ -7,7 +7,8 @@ using RabbitMQ.Client;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ArticleDb>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultContext")));
 builder.Services
-    .AddMqLibraryConfig(builder.Configuration);
+    .AddMqLibraryConfig(builder.Configuration)
+    .AddMqLibrary();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
