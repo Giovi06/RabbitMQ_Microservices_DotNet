@@ -1,0 +1,28 @@
+### test correct password
+POST http://localhost:8888/checkpassword HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "alice",
+    "password": "mysecret"
+}
+
+
+### test wrong password
+POST http://localhost:8888/checkpassword HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "alice",
+    "password": "wrongpassword"
+}
+
+
+### test non-existent user
+POST http://localhost:8888/checkpassword
+Content-Type: application/json
+
+{
+    "username": "dave",
+    "password": "not in database"
+}

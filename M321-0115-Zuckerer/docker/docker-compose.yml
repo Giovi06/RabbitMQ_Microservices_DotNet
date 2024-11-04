@@ -1,0 +1,11 @@
+# docker compose for local development
+services:
+  # Web GUI
+  
+  # API gateway
+
+
+  # Message Queue
+
+
+  # ArticleSerivce

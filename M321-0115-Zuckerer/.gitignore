@@ -1,0 +1,32 @@
+# Just a basic starter template. Adjust as needed.
+
+# for visual studio
+.vs/
+bin/
+obj/
+
+
+# for VS code and npm
+.vscode/
+node_modules/
+
+
+# general backup and temporary files
+*~
+*.swp
+*.bak
+
+
+# DB files in case of SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+
+# binaries
+*.exe
+*.obj
+*.dll
+*.a
+*.o
+a.out

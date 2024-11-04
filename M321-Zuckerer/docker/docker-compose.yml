@@ -1,0 +1,10 @@
+# docker compose for local development
+
+version: "3"
+
+services:
+  # Web GUI
+  
+  # API gateway
+ 
+
