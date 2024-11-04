@@ -1,10 +1,95 @@
-# docker compose for local development
-
 version: "3"
 
 services:
   # Web GUI
-  
-  # API gateway
- 
 
+  # API gateway
+  ApiGateway:
+    image: nginx:alpine-slim
+    container_name: ZuckererApiGateway
+    restart: always
+    volumes:
+      - ./ApiGateway/html:/usr/share/nginx/html:ro
+      - ./ApiGateway/conf/99-apigateway.conf:/etc/nginx/conf.d/99-apigateway.conf:ro
+    ports:
+      - "8000:80"
+
+  # Message Queue
+  MessageQueue:
+    image: rabbitmq:3-management-alpine
+    container_name: ZuckererMessageQueue
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "netstat -an | grep -q 5672" ]
+    volumes:
+      - ./MessageQueue-data:/var/lib/rabbitmq
+    ports:
+      - "8001:15672"
+      - "5672:5672"
+
+  # ArticleSerivce
+  articleservice:
+    container_name: ArticleService
+    depends_on:
+      - MessageQueue
+    build:
+      context: ../src/ZuckererWarehouse_L
+      dockerfile: ./ArticleService/Dockerfile
+    environment:
+      - JwtSettings__Secret=${JWTSECRET}
+      - RabbitMq__Uri=${RABBITMQ_URI}
+      - RabbitMq__ExchangeName=${RABBITMQ_EXCHANGE}
+    volumes:
+      - ./ArticleService-data/Articles.sqlite:/app/Articles.sqlite
+    ports:
+      - "8011:8080"
+
+  # AuthService
+  authservice:
+    container_name: AuthService
+    depends_on:
+      - MessageQueue
+      - remoteauthapi
+    restart: always
+    build:
+      context: ../src/ZuckererWarehouse_L
+      dockerfile: ./AuthService/Dockerfile
+    environment:
+      - AppSettings__ApiUrl=http://remoteauthapi:8888/
+      - JwtSettings__Secret=${JWTSECRET}
+    # only expose for debugging / development purposes
+    # in production the service should not be accessible directly from the outside
+    ports:
+      - "8012:8080"
+
+  # remote auth api
+  remoteauthapi:
+    container_name: RemoteauthApi
+    restart: always
+    build:
+      context: ../src/remoteauthapi
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./remoteauthapi-data:/data
+    environment:
+      - USERS_FILE=/data/users.json
+
+  # OrderService
+  orderservice:
+    container_name: OrderService
+    depends_on:
+      - MessageQueue
+    restart: always
+    build:
+      context: ../src/ZuckererWarehouse_L
+      dockerfile: ./OrderService/Dockerfile
+    environment:
+      - JwtSettings__Secret=${JWTSECRET}
+      - RabbitMq__Uri=${RABBITMQ_URI}
+      - RabbitMq__ExchangeName=${RABBITMQ_EXCHANGE}
+    volumes:
+      - ./OrderService-data/Orders.sqlite:/app/Orders.sqlite
+    # only expose for debugging / development purposes
+    # in production the service should not be accessible directly from the outside
+    ports:
+      - "8014:8080"
