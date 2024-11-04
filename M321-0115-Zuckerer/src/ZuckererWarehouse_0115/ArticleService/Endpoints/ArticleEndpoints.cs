@@ -54,7 +54,7 @@ namespace ArticleService.Endpoints
             })
             .WithName("UpdateArticle")
             .WithOpenApi();
-            
+
             group.MapDelete("/{id}", async (Guid id, ArticleDb db) =>
             {
                 var dbObj = await db.Articles.FindAsync(id);
@@ -70,5 +70,12 @@ namespace ArticleService.Endpoints
             .WithOpenApi();
         }
     }
-    
+    public record NewArticleDTO(string ArticleNumber, string ShortDescription, int Price);
+
+    public record UpdateArticleDTO(string ShortDescription, int Price, string? LongDescription, Guid? CategoryId, int? Weight, int? PackageDimensionW, int? PackageDimensionL, int? PackageDimensionH);
+
+    public record GoodsInDTOListItem(Guid Id, int Quantity);
+    public record GoodsInDTO(List<GoodsInDTOListItem> ReceivedGoods);
+
+    public record GoodsOutDTO(Guid ArticleId, int Quantity, Guid OrderId);
 }
